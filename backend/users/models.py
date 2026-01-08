@@ -71,7 +71,7 @@ class Subscription(models.Model):
                 fields=('follower', 'following'), name='unique_subscription'
             ),
             models.CheckConstraint(
-                check=~models.Q(follower=models.F('following')),
+                condition=~models.Q(follower=models.F('following')),
                 name='no_self_subscription',
             ),
         )

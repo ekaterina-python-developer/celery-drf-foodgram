@@ -11,6 +11,10 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+
   backend:
     build: ./backend/
     env_file: .env
@@ -20,6 +24,7 @@ services:
       - ./backend/data:/app/data
     depends_on:
       - db
+      - redis
     command: >
       sh -c "sleep 5 &&
              python manage.py makemigrations
@@ -27,7 +32,20 @@ services:
              python manage.py import_ingredients --file data/ingredients.csv &&
              python manage.py collectstatic --noinput &&
              cp -r /app/collected_static/. /backend_static/static/ &&
-             gunicorn backend.wsgi:application --bind 0.0.0.0:8000"    
+             gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
+
+
+  celery:
+    build: ./backend/
+    env_file: .env
+    command: celery -A backend worker --loglevel=info
+    volumes:
+      - media:/app/media
+      - ./backend/data:/app/data
+    depends_on:
+      - db
+      - redis
+      - backend    
 
   frontend:
     build: ./frontend/

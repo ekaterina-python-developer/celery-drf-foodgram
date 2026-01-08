@@ -10,3 +10,5 @@ django-extra-fields
 flake8
 isort
 autopep8
+celery
+redis

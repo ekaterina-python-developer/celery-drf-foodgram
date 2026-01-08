@@ -66,7 +66,10 @@ docker-compose up -d --build
 
 ```
 docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py import_ingredients --file /app/data/ingredients.csv
 docker-compose exec backend python manage.py collectstatic --no-input
+docker-compose exec backend python manage.py createsuperuser
+
 ```
 
 ---
