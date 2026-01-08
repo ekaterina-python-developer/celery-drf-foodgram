@@ -1,0 +1,12 @@
+djangorestframework
+Django
+djoser
+psycopg2-binary
+django-filter
+reportlab
+python-dotenv
+django-extensions
+django-extra-fields
+flake8
+isort
+autopep8

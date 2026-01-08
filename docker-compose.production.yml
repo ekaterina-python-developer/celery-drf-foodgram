@@ -1,0 +1,47 @@
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    image: postgres:15
+    container_name: db
+    env_file: 
+      - /home/yc-user/envs/foodgram.env # Надо создайте файл .env из шаблона: cp .env.example .env. 
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    image: lichnyy/foodgram_backend:latest  
+    env_file: 
+      - /home/yc-user/envs/foodgram.env
+    volumes:
+      - static:/backend_static
+      - media:/app/media      
+    depends_on:
+      - db
+
+  frontend:
+    image: lichnyy/foodgram_frontend:latest 
+    env_file:
+      - /home/yc-user/envs/foodgram.env 
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+    depends_on:
+      - backend
+
+
+  gateway:
+    image: lichnyy/foodgram_gateway:latest  
+    env_file: 
+      - /home/yc-user/envs/foodgram.env
+    ports:
+      - 8080:80
+    volumes:
+      - static:/staticfiles
+      - media:/app/media
+      - ./docs/:/usr/share/nginx/html/api/docs/
+    depends_on:
+      - frontend

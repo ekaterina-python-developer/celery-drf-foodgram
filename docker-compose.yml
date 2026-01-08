@@ -1,0 +1,52 @@
+
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    image: postgres:15
+    env_file: .env 
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend/
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/app/media
+      - ./backend/data:/app/data
+    depends_on:
+      - db
+    command: >
+      sh -c "sleep 5 &&
+             python manage.py makemigrations
+             python manage.py migrate &&
+             python manage.py import_ingredients --file data/ingredients.csv &&
+             python manage.py collectstatic --noinput &&
+             cp -r /app/collected_static/. /backend_static/static/ &&
+             gunicorn backend.wsgi:application --bind 0.0.0.0:8000"    
+
+  frontend:
+    build: ./frontend/
+    env_file: .env   
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+    depends_on:
+      - backend
+
+
+  gateway:
+    build: ./nginx/
+    env_file: .env    
+    ports:
+      - 8000:80
+    volumes:
+      - static:/staticfiles
+      - media:/app/media
+      - ./docs/:/usr/share/nginx/html/api/docs/      
+    depends_on:
+      - frontend

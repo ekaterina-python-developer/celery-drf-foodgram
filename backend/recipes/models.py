@@ -1,0 +1,195 @@
+from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
+from .querysets import RecipeQuerySet
+
+
+class Ingredient(models.Model):
+    """Модель ингредиента."""
+
+    name = models.CharField(
+        max_length=settings.MAX_INGREDIENT_NAME_LENGTH,
+        verbose_name='Название',
+    )
+    measurement_unit = models.CharField(
+        max_length=settings.MAX_INGREDIENT_MEASUREMENT_UNIT_LENGTH,
+        verbose_name='Единица измерения',
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'), name='unique_ingredient'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
+
+
+class Tag(models.Model):
+    """Модель тега."""
+
+    name = models.CharField(
+        max_length=settings.MAX_TAG_NAME_LENGTH,
+        unique=True,
+        verbose_name='Название',
+    )
+    color = models.CharField(
+        max_length=settings.MAX_TAG_COLOR_LENGTH, verbose_name='Цвет'
+    )
+    slug = models.SlugField(unique=True, verbose_name='slug-адрес')
+
+    class Meta:
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
+
+    def __str__(self):
+        return self.name
+
+
+class Recipe(models.Model):
+    """Модель рецепта."""
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+    )
+    name = models.CharField(
+        max_length=settings.MAX_RECIPE_NAME_LENGTH,
+        verbose_name='Название',
+        unique=True,
+    )
+    image = models.ImageField(
+        upload_to='recipes/',
+        verbose_name='Изображение',
+    )
+    text = models.TextField(verbose_name='Описание')
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='RecipeIngredient',
+        verbose_name='Ингредиенты',
+    )
+    tags = models.ManyToManyField(
+        Tag, verbose_name='Тэги', related_name='recipes'
+    )
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name='Время приготовления',
+        validators=[
+            MinValueValidator(
+                settings.MIN_COOKING_TIME,
+                message='Время приготовления не может быть меньше 1 минуты',
+            ),
+            MaxValueValidator(
+                settings.MAX_COOKING_TIME,
+                message='Время приготовления не может быть больше 14 дней',
+            ),
+        ],
+    )
+    objects = RecipeQuerySet.as_manager()
+
+    class Meta:
+        default_related_name = 'recipes'
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+        ordering = ('name',)
+
+    def __str__(self):
+        return f'{self.name} - {self.author}'
+
+
+class RecipeIngredient(models.Model):
+    """Промежуточная модель для связи рецепта и ингредиента."""
+
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='recipes',
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        related_name='recipe_ingredient',
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        validators=[
+            MinValueValidator(
+                settings.MIN_AMOUNT,
+                message='Количество не может быть меньше 1',
+            ),
+            MaxValueValidator(
+                settings.MAX_AMOUNT,
+                message='Количество не может быть больше 1000',
+            ),
+        ],
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецептов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_recipe_ingredient'
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.recipe.name} - {self.ingredient.name} '
+            f'({self.ingredient.measurement_unit})'
+        )
+
+
+class UserRelatedModel(models.Model):
+    """Абстрактная модель для связей 'пользователь — рецепт'."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        'recipes.Recipe',
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_%(class)s',
+            ),
+        ]
+        default_related_name = '%(class)s'
+        verbose_name = 'Связь пользователь-рецепт'
+        verbose_name_plural = 'Связи пользователь-рецепт'
+
+    def __str__(self):
+        return f'{self.user} — {self.recipe}'
+
+
+class Favorite(UserRelatedModel):
+    """Модель избранных рецептов."""
+
+    class Meta(UserRelatedModel.Meta):
+        verbose_name = 'избранное'
+        verbose_name_plural = 'избранные'
+
+
+class ShoppingList(UserRelatedModel):
+    """Модель списка покупок."""
+
+    class Meta(UserRelatedModel.Meta):
+        verbose_name = 'список покупок'
+        verbose_name_plural = 'списки покупок'
