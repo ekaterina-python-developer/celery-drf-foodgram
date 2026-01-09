@@ -1,4 +1,5 @@
 from django.db import transaction
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -42,6 +43,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     author = UserProfileSerializer(read_only=True)
     is_favorited = serializers.BooleanField(read_only=True)
     is_in_shopping_cart = serializers.BooleanField(read_only=True)
+    image = Base64ImageField(required=True, use_url=True)
 
     class Meta:
         model = Recipe

@@ -82,8 +82,8 @@ class UserSubscriptionSerializer(UserProfileSerializer):
     recipes_count = serializers.IntegerField(
         source='recipes.count', read_only=True)
 
-    class Meta(UserProfileSerializer.Meta):
-        fields = UserProfileSerializer.Meta.fields + (
+    class Meta(UserProfileSerializer.Meta):        
+        fields = UserProfileSerializer.Meta.fields + ( # type: ignore[assignment]
             'recipes',
             'recipes_count',
         )

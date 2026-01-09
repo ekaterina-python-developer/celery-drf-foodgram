@@ -12,3 +12,4 @@ isort
 autopep8
 celery
 redis
+drf-extra-fields
