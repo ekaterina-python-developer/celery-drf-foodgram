@@ -1,23 +1,23 @@
-import {
-  Container,
-  IngredientsSearch,
-  FileInput,
-  Input,
-  Title,
-  CheckboxGroup,
-  Main,
-  Form,
-  Button,
-  Textarea,
-} from "../../components";
-import styles from "./styles.module.css";
-import api from "../../api";
-import { useEffect, useState } from "react";
-import { useTags } from "../../utils";
-import { useHistory } from "react-router-dom";
-import MetaTags from "react-meta-tags";
-import { Icons } from "../../components";
 import cn from "classnames";
+import { useEffect, useState } from "react";
+import MetaTags from "react-meta-tags";
+import { useHistory } from "react-router-dom";
+import api from "../../api";
+import {
+  Button,
+  CheckboxGroup,
+  Container,
+  FileInput,
+  Form,
+  Icons,
+  IngredientsSearch,
+  Input,
+  Main,
+  Textarea,
+  Title,
+} from "../../components";
+import { useTags } from "../../utils";
+import styles from "./styles.module.css";
 
 const RecipeCreate = ({ onEdit }) => {
   const { value, handleChange, setValue } = useTags();
@@ -82,7 +82,7 @@ const RecipeCreate = ({ onEdit }) => {
 
   useEffect((_) => {
     api.getTags().then((tags) => {
-      setValue(tags.map((tag) => ({ ...tag, value: true })));
+      setValue(tags.map((tag) => ({ ...tag, value: false })));
     });
   }, []);
 
