@@ -1,15 +1,7 @@
-import datetime
-from io import BytesIO
-
-from django.db.models import F, Sum
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-from reportlab.pdfgen import canvas
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -24,6 +16,8 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
 from backend.mixins import CreateDeleteMixin
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingList, Tag)
+
+from recipes.tasks import generate_shopping_list_text
 
 
 class BaseReadOnlyViewSet(ModelViewSet):
@@ -49,39 +43,22 @@ class RecipeViewSet(CreateDeleteMixin, ModelViewSet):
             .select_related('author')
             .prefetch_related('tags', 'recipes__ingredient')
         )
-
-    @staticmethod
-    def generate_pdf(user):
-        """Генерирует PDF файл со списком покупок."""
-        pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
-        ingredients = (
-            RecipeIngredient.objects.filter(recipe__shoppinglist__user=user)
-            .values(
-                name=F('ingredient__name'),
-                unit=F('ingredient__measurement_unit')
-            )
-            .annotate(total_amount=Sum('amount'))
-        )
-        buffer = BytesIO()
-        page = canvas.Canvas(buffer, pagesize=letter)
-        text = page.beginText(70, 750)
-        text.setFont('STSong-Light', 14)
-
-        if not ingredients:
-            text.textLine('Список покупок пуст.')
-        else:
-            for ing in ingredients:
-                name = ing.get('name', 'Неизвестный ингредиент')
-                unit = ing.get('unit', '')
-                total = ing.get('total_amount', 0)
-                text.textLine(f'{name} ({unit}) — {total}')
-
-        page.drawText(text)
-        page.showPage()
-        page.save()
-        buffer.seek(0)
-        return buffer
-
+    
+    @action(
+    detail=False,
+    url_path='download_shopping_cart',
+    permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        """Скачать список покупок."""        
+        task = generate_shopping_list_text.delay(request.user.id)
+        content = task.get()        
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
+        return response
+        
+   
+ 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         """Получить короткую ссылку на рецепт."""
@@ -103,23 +80,6 @@ class RecipeViewSet(CreateDeleteMixin, ModelViewSet):
         """Удалить рецепт из избранного."""
         return self.delete_item(Favorite, user=request.user, recipe=pk)
 
-    @action(
-        detail=False,
-        url_path='download_shopping_cart',
-        permission_classes=(IsAuthenticated,)
-    )
-    def download_shopping_cart(self, request):
-        """Скачать список покупок в формате PDF."""
-        time_format = '%d/%m - %H:%M'
-        formatted_datetime = datetime.datetime.now().strftime(time_format)
-
-        pdf = self.generate_pdf(request.user)
-
-        return FileResponse(
-            pdf,
-            as_attachment=True,
-            filename=f'Список покупок от {formatted_datetime}.pdf'
-        )
 
     @action(detail=True, methods=('post',), url_path='shopping_cart')
     def add_to_cart(self, request, pk):
