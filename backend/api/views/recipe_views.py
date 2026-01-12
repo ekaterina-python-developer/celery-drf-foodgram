@@ -52,13 +52,12 @@ class RecipeViewSet(CreateDeleteMixin, ModelViewSet):
     def download_shopping_cart(self, request):
         """Скачать список покупок."""        
         task = generate_shopping_list_text.delay(request.user.id)
-        content = task.get()        
+        content = task.get(interval=0.1)       
         response = HttpResponse(content, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
         return response
         
    
- 
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         """Получить короткую ссылку на рецепт."""
