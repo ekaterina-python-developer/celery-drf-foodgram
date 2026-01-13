@@ -166,16 +166,13 @@ foodgram
 ## 🛠️ Используемые технологии
 
 Python 3.9, Django, Django REST Framework
-
 PostgreSQL
-
+Celery, Redis
 React
-
 Nginx
-
 Docker, Docker Compose
-
 GitHub Actions (CI/CD)
+Yandex Cloud
 
 ---
 
