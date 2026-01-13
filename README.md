@@ -143,10 +143,6 @@ docker compose -f docker-compose.production.yml down
 docker compose -f docker-compose.production.yml up -d
 ```
 
----
-
-Проект будет доступен по адресу: [foodgram-recipes.ddns.net](https://foodgram-recipes.ddns.net/recipes)
-
 ## 📂 Структура проекта
 
 ```
@@ -178,4 +174,4 @@ Yandex Cloud
 
 ## 👩‍💻 Разработчик
 
-[Екатерина Воронова](https://github.com/katya-voronova)
+[Екатерина Понурова](https://github.com/ekaterina-python-developer)
