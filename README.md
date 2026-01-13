@@ -1,3 +1,4 @@
+![Foodgram](screencapture-localhost-8000-recipes-2026-01-13-22_21_16.png)
 # 🍽️ Foodgram — Продуктовый помощник
 
 ![Kittygram CI/CD](https://github.com/katya-voronova/foodgram/actions/workflows/main.yml/badge.svg)
@@ -61,18 +62,6 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 docker-compose up -d --build
 ```
-
-### 4. Применение миграций и сбор статики
-
-```
-docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py import_ingredients --file /app/data/ingredients.csv
-docker-compose exec backend python manage.py collectstatic --no-input
-docker-compose exec backend python manage.py createsuperuser
-
-```
-
----
 
 После запуска проект будет доступен по адресу:
 👉 http://localhost:8000/
