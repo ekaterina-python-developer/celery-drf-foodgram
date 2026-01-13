@@ -1,4 +1,4 @@
-![Foodgram](screencapture-localhost-8000-recipes-2026-01-13-22_21_16.png)
+![Foodgram](screencapture-localhost-8000-recipes-2026-01-13-22_26_47.png)
 # 🍽️ Foodgram — Продуктовый помощник
 
 ![Kittygram CI/CD](https://github.com/katya-voronova/foodgram/actions/workflows/main.yml/badge.svg)
