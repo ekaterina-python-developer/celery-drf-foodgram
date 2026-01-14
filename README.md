@@ -183,7 +183,7 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-### 4. Добавьте Secrets в вашем форке репозитория:
+### 3. Добавьте Secrets в вашем форке репозитория:
 ```
 SERVER_HOST: IP вашего сервера
 SERVER_USER: имя пользователя на сервере
@@ -195,7 +195,7 @@ TELEGRAM_CHAT_ID: ваш личный ID пользователя в Telegram
 TELEGRAM_BOT_TOKEN: ваш токен Telegram Bot
 ```
 
-### 5. Запуск деплоя
+### 4. Запуск деплоя
 
 После настройки секретов:
 Сделайте push в ветку main
