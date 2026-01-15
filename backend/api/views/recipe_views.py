@@ -14,9 +14,8 @@ from api.serializers import (FavoriteSerializer, IngredientSerializer,
                              RecipeSerializer, ShoppingListSerializer,
                              TagSerializer)
 from backend.mixins import CreateDeleteMixin
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingList, Tag)
-
+from recipes.models import (Favorite, Ingredient, Recipe, ShoppingList,
+                            Tag)
 from recipes.tasks import generate_shopping_list_text
 
 
@@ -43,21 +42,20 @@ class RecipeViewSet(CreateDeleteMixin, ModelViewSet):
             .select_related('author')
             .prefetch_related('tags', 'recipes__ingredient')
         )
-    
+
     @action(
-    detail=False,
-    url_path='download_shopping_cart',
-    permission_classes=(IsAuthenticated,)
+        detail=False,
+        url_path='download_shopping_cart',
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        """Скачать список покупок."""        
+        """Скачать список покупок."""
         task = generate_shopping_list_text.delay(request.user.id)
-        content = task.get(interval=0.1)       
+        content = task.get(interval=0.1)
         response = HttpResponse(content, content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename="shopping_list.txt"'
         return response
-        
-   
+
     @action(detail=True, url_path='get-link')
     def get_link(self, request, pk=None):
         """Получить короткую ссылку на рецепт."""
@@ -78,7 +76,6 @@ class RecipeViewSet(CreateDeleteMixin, ModelViewSet):
     def unfavorite(self, request, pk):
         """Удалить рецепт из избранного."""
         return self.delete_item(Favorite, user=request.user, recipe=pk)
-
 
     @action(detail=True, methods=('post',), url_path='shopping_cart')
     def add_to_cart(self, request, pk):

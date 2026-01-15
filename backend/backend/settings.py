@@ -138,7 +138,7 @@ DJOSER = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  
+        'LOCATION': 'redis://redis:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         },
@@ -162,11 +162,11 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
-    'loggers': {       
-        '': {  
+    'loggers': {
+        '': {
             'handlers': ['console'],
             'level': 'INFO',
-        },        
+        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
