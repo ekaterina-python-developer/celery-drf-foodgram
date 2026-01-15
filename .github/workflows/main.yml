@@ -129,8 +129,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}          
+          key: ${{ secrets.SSH_KEY }}                    
           script: |
             mkdir -p ~/envs
             cat << 'EOF' > ~/envs/foodgram.env            
@@ -150,8 +149,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          key: ${{ secrets.SSH_KEY }}          
           source: "docker-compose.production.yml"
           target: "foodgram"             
           debug: true
@@ -161,8 +159,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          key: ${{ secrets.SSH_KEY }}          
           script: |
             cd foodgram
             sudo docker compose -f docker-compose.production.yml pull
