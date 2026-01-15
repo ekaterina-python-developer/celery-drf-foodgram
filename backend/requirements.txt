@@ -9,6 +9,7 @@ django-extensions
 django-extra-fields
 flake8
 isort
+black
 autopep8
 celery
 redis

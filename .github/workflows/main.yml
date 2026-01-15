@@ -140,7 +140,7 @@ jobs:
             DB_PORT=5432
             DEBUG=False
             SECRET_KEY=${{ secrets.SECRET_KEY }}
-            ALLOWED_HOSTS=localhost,127.0.0.1,foodgram-recipes.ddns.net
+            ALLOWED_HOSTS=127.0.0.1,localhost,backend
             EOF
             chmod 600 ~/envs/foodgram.env
 
