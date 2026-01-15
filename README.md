@@ -209,7 +209,7 @@ GitHub Actions автоматически:
 
 ## 🛠️ Используемые технологии
 
-Python 3.9, Django, Django REST Framework
+Python, Django, Django REST Framework
 PostgreSQL
 Celery, Redis
 React
