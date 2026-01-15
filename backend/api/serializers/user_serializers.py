@@ -84,7 +84,8 @@ class UserSubscriptionSerializer(UserProfileSerializer):
     )
 
     class Meta(UserProfileSerializer.Meta):
-        fields = UserProfileSerializer.Meta.fields + (  # type: ignore[assignment]
+        fields = (
+            *UserProfileSerializer.Meta.fields,  # type: ignore[assignment]
             "recipes",
             "recipes_count",
         )
