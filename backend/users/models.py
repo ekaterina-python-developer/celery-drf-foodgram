@@ -65,8 +65,7 @@ class Subscription(models.Model):
         verbose_name='Автор',
     )
 
-    class Meta:
-        # noqa
+    class Meta:        
         constraints = (
             models.UniqueConstraint(
                 fields=('follower', 'following'), name='unique_subscription'
