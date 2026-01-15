@@ -66,6 +66,7 @@ class Subscription(models.Model):
     )
 
     class Meta:
+        # noqa
         constraints = (
             models.UniqueConstraint(
                 fields=('follower', 'following'), name='unique_subscription'
